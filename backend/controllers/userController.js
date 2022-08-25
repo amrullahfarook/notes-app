@@ -1,32 +1,42 @@
-asyncHandler = require("express-async-handler");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
+const asyncHandler = require("express-async-handler");
+const User = require("../models/userModel");
 
-const getNotes = asyncHandler(async (req, res) => {
-  res.status(200).send({ message: "get notes" });
-});
+// const registerUser = asyncHandler(async (req, res) => {
+//   res.status(200).json({ message: "Register User" });
+// });
 
-const setNote = asyncHandler(async (req, res) => {
-  noteProps = req.body;
-  for (let prop in noteProps) {
-    if (!noteProps[prop]) {
-      res.status(400);
-      throw new Error(`Please fill in the ${prop} field`);
-    }
+const loginUser = asyncHandler(async (req, res) => {
+  const { email, password } = req.body;
+
+  const user = await User.findOne({ email });
+
+  //check if user email exists, and if password matches to hashed password in mongoDB
+  if (user && (await bcrypt.compare(password, user.password))) {
+    res.json({
+      _id: user.id,
+      name: user.firstName,
+      email: user.email,
+      token: generateToken(user._id),
+    });
+  } else {
+    res.status(400);
+    throw new Error("Invalid credentials");
   }
-
-  res.status(200).send({ message: "set notes" });
+});
+const getMe = asyncHandler(async (req, res) => {
+  res.status(200).json({ message: "Get user data" });
 });
 
-const deleteNote = asyncHandler(async (req, res) => {
-  res.status(200).send({ message: `deleted note: ${req.params.id}` });
-});
-
-const updateNote = asyncHandler(async (req, res) => {
-  res.status(200).send({ message: `updated note: ${req.params.id}` });
-});
+//Generate JWT
+const generateToken = (id) => {
+  return jwt.sign({ id }, process.env.JWT_SECRET, {
+    expiresIn: "30d",
+  });
+};
 
 module.exports = {
-  getNotes,
-  setNote,
-  deleteNote,
-  updateNote,
+  loginUser,
+  getMe,
 };
