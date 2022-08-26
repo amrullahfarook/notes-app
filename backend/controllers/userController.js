@@ -16,8 +16,10 @@ const loginUser = asyncHandler(async (req, res) => {
   if (user && (await bcrypt.compare(password, user.password))) {
     res.json({
       _id: user.id,
-      name: user.firstName,
+      firstName: user.firstName,
+      lastName: user.lastName,
       email: user.email,
+      lastLogin: user.lastLogin,
       token: generateToken(user._id),
     });
   } else {
@@ -25,6 +27,12 @@ const loginUser = asyncHandler(async (req, res) => {
     throw new Error("Invalid credentials");
   }
 });
+
+//Update user details after first login
+const updateUser = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.params.id);
+});
+
 const getMe = asyncHandler(async (req, res) => {
   res.status(200).json({ message: "Get user data" });
 });
