@@ -86,9 +86,7 @@ h3 {
 }
 
 .notes {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
+    display: block
 }
 
 .note {
