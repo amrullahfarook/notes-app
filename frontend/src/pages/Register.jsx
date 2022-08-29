@@ -1,5 +1,9 @@
 import { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import { FaUser } from "react-icons/fa";
+import { updateUser, logout } from "../features/auth/authSlice";
 
 function Register() {
   const [formData, setFormData] = useState({
@@ -9,9 +13,57 @@ function Register() {
     dateOfBirth: "",
     mobile: "",
     password: "",
-    firstLogin: new Date().toLocaleString,
+    status: "active",
   });
 
+  const { firstName, lastName, email, dateOfBirth, mobile, password, status } =
+    formData;
+
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const { user, isSuccess, isError, message } = useSelector(
+    (state) => state.auth
+  );
+
+  useEffect(() => {
+    if (isError) {
+      toast.error(message);
+    }
+
+    if (isSuccess) {
+      toast.success("Successfully updated details!");
+      dispatch(logout());
+      navigate("/");
+    }
+  }, [isError, isSuccess, message, navigate]);
+
+  const onSubmit = (e) => {
+    e.preventDefault();
+
+    dispatch(
+      updateUser({
+        ...user,
+        firstName: firstName,
+        lastName: lastName,
+        email: email,
+        dateOfBirth: dateOfBirth,
+        mobile: mobile,
+        password: password,
+        status: "active",
+      })
+    );
+
+    setFormData({
+      firstName: "",
+      lastName: "",
+      email: "",
+      dateOfBirth: "",
+      mobile: "",
+      password: "",
+      status: "",
+    });
+  };
   const onChange = (e) => {
     setFormData((prevState) => ({
       ...prevState,
@@ -19,25 +71,15 @@ function Register() {
     }));
   };
 
-  const onSubmit = (e) => {
-    e.preventDefault();
-  };
-
-  const {
-    firstName,
-    lastName,
-    email,
-    dateOfBirth,
-    mobile,
-    password,
-    firstLogin,
-  } = formData;
+  // if (isLoading) {
+  //   return <Spinner />;
+  // }
 
   return (
     <>
       <section className="heading">
         <h1>
-          <FaUser /> Register
+          <FaUser /> Update User Details
         </h1>
         <p>Please fill in your details</p>
       </section>

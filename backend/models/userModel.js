@@ -29,9 +29,9 @@ const userSchema = mongoose.Schema({
     type: String,
     required: [true, "Please enter your account type"],
   },
-  firstLogin: {
-    type: Date,
-    default: null,
+  status: {
+    type: String,
+    default: "inactive",
   },
 });
 

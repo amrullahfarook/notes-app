@@ -1,6 +1,7 @@
 const asyncHandler = require("express-async-handler");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const nodemailer = require("nodemailer");
 
 const User = require("../models/userModel");
 
@@ -67,7 +68,6 @@ const setUser = asyncHandler(async (req, res) => {
     mobile: req.body.mobile,
     password: hashedPassword,
     accountType: req.body.accountType,
-    lastLogin: req.body.lastLogin,
   });
 
   //Check if user was created
@@ -110,10 +110,6 @@ const generateToken = (id) => {
 
 module.exports = {
   getUsers,
-  // getUserByID,
-  // getUserByEmail,
-  // getUserByFName,
-  // getUserByLName,
   setUser,
   deleteUser,
 };

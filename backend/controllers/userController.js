@@ -3,10 +3,6 @@ const bcrypt = require("bcryptjs");
 const asyncHandler = require("express-async-handler");
 const User = require("../models/userModel");
 
-// const registerUser = asyncHandler(async (req, res) => {
-//   res.status(200).json({ message: "Register User" });
-// });
-
 const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
@@ -19,8 +15,9 @@ const loginUser = asyncHandler(async (req, res) => {
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
-      lastLogin: user.lastLogin,
+      accountType: user.accountType,
       token: generateToken(user._id),
+      status: user.status,
     });
   } else {
     res.status(400);
@@ -30,7 +27,26 @@ const loginUser = asyncHandler(async (req, res) => {
 
 //Update user details after first login
 const updateUser = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.params.id);
+  const { firstName, lastName, email, dateOfBirth, mobile, password, status } =
+    req.body;
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(password, salt);
+
+  const userDetails = {
+    firstName,
+    lastName,
+    email,
+    dateOfBirth,
+    mobile,
+    password: hashedPassword,
+    status,
+  };
+
+  const updatedUser = await User.findByIdAndUpdate(req.params.id, userDetails, {
+    new: true,
+  });
+
+  res.status(200).json(updatedUser);
 });
 
 const getMe = asyncHandler(async (req, res) => {
@@ -46,5 +62,6 @@ const generateToken = (id) => {
 
 module.exports = {
   loginUser,
+  updateUser,
   getMe,
 };
